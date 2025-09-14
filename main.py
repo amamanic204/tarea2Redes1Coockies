@@ -8,7 +8,7 @@ async def root():
 	return FileResponse("holaEspanol.html")
 
 @app.get("/ingles")
-async def frances():
+async def ingles():
 	return FileResponse("holaIngles.html")
 
 @app.get("/frances")
@@ -16,7 +16,7 @@ async def frances():
 	return FileResponse("holaFrances.html")
 
 @app.get("/italiano")
-async def frances():
+async def italiano():
 	return FileResponse("holaItaliano.html")
 
 
