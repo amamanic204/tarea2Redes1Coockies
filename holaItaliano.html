@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>holaMundo</title>
+	<!-- <link rel="stylesheet" type="text/css" href="estilos.css">  -->
+</head>
+<style type="text/css">
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+	body {
+		height: 100vh;
+		background-color: seagreen;
+		background-size: cover;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.container {
+		height: 65vh;
+		width: 75%;
+		background-color: white;
+		border-radius: 40px;
+		box-shadow: 10px 10px 15px black;	
+
+		display: grid;
+		grid-template-columns: 1fr 3fr;
+	}
+	.left {
+		height: 100%;
+		width: 100%;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		border-right: 3px solid gray;
+	}
+	.left ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		color: black;
+		font-size: 2em;
+
+	}
+	.left a {
+		color: black;
+		font-family: times;
+		text-decoration: none;
+	}
+	.left a:hover {
+		background-color: orangered;
+	}
+	.right {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+	.right div {
+		position: absolute;
+		bottom: 0;
+	}
+	#texto {
+		font-size: 10em;
+		font-family: monospace;
+	}
+</style>
+<style type="text/css" id="estilo"></style>
+<body>
+	<div class="container">
+		<section class="left">
+			<ul>
+				<li><a id="espanol"   href="/">espanol</a></li>
+				<li><a id="ingles"    href="/ingles">ingles</a></li>
+				<li><a id="frances"   href="/frances">frances</a></li>
+				<li><a id="italiano"  href="/italiano">italiano</a></li>
+			</ul>				
+		</section>
+		<section class="right">
+			<p id="texto">Ciao</p>
+			<div>
+				<input id="color" type="color" name="color" onchange="cambiarColorTexto()">
+				<select id="fuente" onchange="cambiarFuenteTexto()">
+					<option value="Times New Roman">Times New Roman</option>
+					<option value="sans-serif">Sans-serif</option>
+					<option value="monospace">Monospace</option>
+				</select>
+
+			</div>
+		</section>
+	</div>
+</body>
+<!-- <script type="text/javascript" src="script.js"></script> -->
+<script type="text/javascript">
+	const color = document.getElementById("color");
+	const texto = document.getElementById("texto");
+	const fuente = document.getElementById("fuente");
+	const estilo = document.getElementById("estilo");
+
+	function cambiarColorTexto() {
+		texto.style.color = color.value;
+		setCookie("color", color.value);
+	}
+	function cambiarFuenteTexto() {
+		let fue = fuente.value;
+		fetch(`/setFuente/${fue}`, {method: "POST"})
+			.then(res => res.json())
+			.then(data => {
+				texto.style.fontFamily = fue;
+				console.log(fue);
+				console.log(data.mensaje);
+			});
+	}
+	// coockies para COLOR DE TEXTO con JAVASCRIPT
+	function setCookie(nom, valor){
+		document.cookie = nom + "=" + valor + ";";
+	}
+	function getCookie(nombre){
+		let nom = nombre + "=";
+		let decodCookie = decodeURIComponent(document.cookie);
+		let x = decodCookie.split(";");
+		for(let i=0; i<x.length; i++){
+			let c = x[i].trim();
+			if(c.indexOf(nom) === 0){
+				return c.substring(nom.length, c.length);
+			}
+		}
+		return "";
+	}
+	let colorSelect = getCookie("color");
+	if (colorSelect !== ""){
+		texto.style.color = colorSelect;
+		color.value = colorSelect;
+	}
+
+	// coockies para FUENTE DE TEXTO con el SERVER
+	fetch("/getFuente")
+		.then(res => res.json())
+		.then(data => {
+			console.log(data.fontFamily);
+			texto.style.fontFamily = data.fontFamily;
+			fuente.value = data.fontFamily;
+		});
+
+</script>
+</html>
+
+
