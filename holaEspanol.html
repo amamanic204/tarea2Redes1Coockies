@@ -4,7 +4,6 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>holaMundo</title>
-	<!-- <link rel="stylesheet" type="text/css" href="estilos.css">  -->
 </head>
 <style type="text/css">
 	* {
@@ -73,14 +72,14 @@
 	}
 </style>
 <style type="text/css" id="estilo"></style>
-<body>
+<body onload="guardarEnlace(window.location.href.substring(21))">
 	<div class="container">
 		<section class="left">
 			<ul>
-				<li><a id="espanol"   href="/">espanol</a></li>
-				<li><a id="ingles"    href="/ingles">ingles</a></li>
-				<li><a id="frances"   href="/frances">frances</a></li>
-				<li><a id="italiano"  href="/italiano">italiano</a></li>
+				<li><a href="/"         >Español</a></li>
+				<li><a href="/ingles"   >Inglés</a></li>
+				<li><a href="/frances"  >Francés</a></li>
+				<li><a href="/italiano" >Italiano</a></li>
 			</ul>				
 		</section>
 		<section class="right">
@@ -92,35 +91,21 @@
 					<option value="sans-serif">Sans-serif</option>
 					<option value="monospace">Monospace</option>
 				</select>
-
 			</div>
 		</section>
 	</div>
 </body>
-<!-- <script type="text/javascript" src="script.js"></script> -->
 <script type="text/javascript">
 	const color = document.getElementById("color");
 	const texto = document.getElementById("texto");
 	const fuente = document.getElementById("fuente");
-	const estilo = document.getElementById("estilo");
 
-	function cambiarColorTexto() {
-		texto.style.color = color.value;
-		setCookie("color", color.value);
-	}
-	function cambiarFuenteTexto() {
-		let fue = fuente.value;
-		fetch(`/setFuente/${fue}`, {method: "POST"})
-			.then(res => res.json())
-			.then(data => {
-				texto.style.fontFamily = fue;
-				console.log(fue);
-				console.log(data.mensaje);
-			});
-	}
-	// coockies para COLOR DE TEXTO con JAVASCRIPT
-	function setCookie(nom, valor){
-		document.cookie = nom + "=" + valor + ";";
+	//-----------FUNCIONES SET GET COOKIES-----------
+	function setCookie(nom, valor, exdays){
+		const d = new Date();
+		d.setTime(d.getTime()+(exdays*24*60*60*1000));
+		let expires = "expires=" + d.toUTCString();
+		document.cookie = nom + "=" + valor + ";" + expires + ";";
 	}
 	function getCookie(nombre){
 		let nom = nombre + "=";
@@ -134,21 +119,64 @@
 		}
 		return "";
 	}
-	let colorSelect = getCookie("color");
-	if (colorSelect !== ""){
-		texto.style.color = colorSelect;
-		color.value = colorSelect;
+	//-----------COLOR DE TEXTO (js)-----------
+	function cambiarColorTexto() {
+		texto.style.color = color.value;
+		setCookie("color", color.value, 1);
+	}
+	//-----------FUENTE DE TEXTO (fasapi)-----------
+	function cambiarFuenteTexto() {
+		let fue = fuente.value;
+		fetch(`/setFuente/${fue}`, {method: "POST"})
+			.then(res => res.json())
+			.then(data => {
+				texto.style.fontFamily = fue;
+				console.log(data.mensaje);
+			});
+	}
+	//-----------GUARDAR ENLACES-----------
+	function guardarEnlace(url) {
+		let visitados = getCookie("visitados");
+		let lista = visitados ? visitados.split(",") : [];
+		if (!lista.includes(url)) {
+			lista.push(url);
+		}
+		setCookie("visitados", lista.join(","), 1);
 	}
 
-	// coockies para FUENTE DE TEXTO con el SERVER
-	fetch("/getFuente")
-		.then(res => res.json())
-		.then(data => {
-			console.log(data.fontFamily);
-			texto.style.fontFamily = data.fontFamily;
-			fuente.value = data.fontFamily;
+	function marcarEnlaces() {
+		let visitados = getCookie("visitados");
+		let lista = visitados ? visitados.split(",") : [];
+
+		document.querySelectorAll(".left a").forEach(a => {
+			if (lista.includes(a.getAttribute("href"))) {
+				a.style.color = "#7300ff";//violeta
+			}
+		});
+	}
+	//-----------MAIN-----------
+	function main(){
+		// color de texto
+		let colorSelect = getCookie("color");
+		if (colorSelect !== ""){
+			texto.style.color = colorSelect;
+			color.value = colorSelect;
+		}
+
+		// fuente de texto
+		fetch("/getFuente")
+			.then(res => res.json())
+			.then(data => {
+				console.log(data.fontFamily);
+				texto.style.fontFamily = data.fontFamily;
+				fuente.value = data.fontFamily;
 		});
 
+		// enlaces visitandos
+		marcarEnlaces();
+
+	}
+	main();
 </script>
 </html>
 

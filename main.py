@@ -20,7 +20,7 @@ async def italiano():
 	return FileResponse("holaItaliano.html")
 
 
-#coockies
+#cookies
 @app.get("/getFuente")
 async def getFuente(request: Request):
 	fue = request.cookies.get("fontFamily")
